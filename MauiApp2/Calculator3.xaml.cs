@@ -11,12 +11,11 @@ public partial class Calculator3 : ContentPage
     private bool _isNewNumber = true;
     private bool _hasDecimal = false;
 
-    // UI Controls
     private Label ExpressionLabel = null!;
     private Label DisplayLabel = null!;
     public Calculator3()
-	{
-		InitializeComponent();
+    {
+	InitializeComponent();
         Title = "Calculator";
         BackgroundColor = Color.FromArgb("#1e1e1e");
 
@@ -126,7 +125,7 @@ public partial class Calculator3 : ContentPage
         mainGrid.Children.Add(percentButton);
 
         // Divide button
-        var divideButton = CreateButton("÷", Colors.White, Color.FromArgb("#ff9500"), 32, OnOperatorClicked);
+        var divideButton = CreateButton("Ã·", Colors.White, Color.FromArgb("#ff9500"), 32, OnOperatorClicked);
         Grid.SetRow(divideButton, 1);
         Grid.SetColumn(divideButton, 3);
         mainGrid.Children.Add(divideButton);
@@ -151,7 +150,7 @@ public partial class Calculator3 : ContentPage
         mainGrid.Children.Add(button9);
 
         // Multiply button
-        var multiplyButton = CreateButton("×", Colors.White, Color.FromArgb("#ff9500"), 32, OnOperatorClicked);
+        var multiplyButton = CreateButton("Ã—", Colors.White, Color.FromArgb("#ff9500"), 32, OnOperatorClicked);
         Grid.SetRow(multiplyButton, 2);
         Grid.SetColumn(multiplyButton, 3);
         mainGrid.Children.Add(multiplyButton);
@@ -216,7 +215,7 @@ public partial class Calculator3 : ContentPage
         mainGrid.Children.Add(button0);
 
         // Plus/Minus button
-        var plusMinusButton = CreateButton("±", Colors.White, Color.FromArgb("#333333"), 32, OnPlusMinusClicked);
+        var plusMinusButton = CreateButton("Â±", Colors.White, Color.FromArgb("#333333"), 32, OnPlusMinusClicked);
         Grid.SetRow(plusMinusButton, 5);
         Grid.SetColumn(plusMinusButton, 1);
         mainGrid.Children.Add(plusMinusButton);
@@ -248,7 +247,7 @@ public partial class Calculator3 : ContentPage
         return button;
     }
 
-    // Event handlers (same as your original code)
+    // Event handlers 
     private void OnNumberClicked(object sender, EventArgs e)
     {
         if (_currentExpression == "")
@@ -367,7 +366,7 @@ public partial class Calculator3 : ContentPage
 
     private void PerformCalculation()
     {
-        _currentExpression = _currentExpression.Trim().Replace("×", "*").Replace("÷", "/");
+        _currentExpression = _currentExpression.Trim().Replace("Ã—", "*").Replace("Ã·", "/");
 
         // Use DataTable.Compute for proper order of operations
         var table = new DataTable();
