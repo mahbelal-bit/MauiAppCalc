@@ -1,7 +1,7 @@
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using System.Data;
-using System.Text.RegularExpressions;
+using NCalc;    
 
 namespace MauiApp2;
 
@@ -16,7 +16,7 @@ public partial class Calculator3 : ContentPage
     private Label DisplayLabel = null!;
     public Calculator3()
     {
-	InitializeComponent();
+	    InitializeComponent();
         Title = "Calculator";
         BackgroundColor = Color.FromArgb("#1e1e1e");
 
@@ -299,14 +299,11 @@ public partial class Calculator3 : ContentPage
     {
         var button = (Button)sender;
         var op = button.Text;
-        if (!_isNewNumber)
+        if (!_isNewNumber || string.IsNullOrEmpty(_currentExpression))
         {
             _currentExpression += $" {_currentValue}";
         }
-        if (string.IsNullOrEmpty(_currentExpression))
-        {
-            _currentExpression = $" {_currentValue}";
-        }
+
         if (!char.IsDigit(_currentExpression.Last()))
             _currentExpression = _currentExpression.Substring(0, _currentExpression.Length - 2);
         _currentExpression += $" {op}";
@@ -371,19 +368,13 @@ public partial class Calculator3 : ContentPage
         
         try
         {
-            // Use DataTable.Compute for proper order of operations
-            var table = new DataTable();
-            _currentExpression = Regex.Replace(
-                                _currentExpression,
-                                @"\d+(\.\d+)?",
-                                m =>
-                                {
-                                    var x = m.ToString();
-                                    return x.Contains(".") ? x : string.Format("{0}.0", x);
-                                }
-                            );
-            var result = table.Compute(_currentExpression, null);
+            // Create a new Expression object
+            var expr = new Expression(_currentExpression);
+            // NCalc correctly interprets numbers to avoid overflow and integer division issues.
+            var result = expr.Evaluate();
+            // The result will be of the correct type (e.g., double, long, int)
             _currentValue = Convert.ToDouble(result);
+
             DisplayLabel.Text = FormatNumber(_currentValue);
             if (DisplayLabel.Text.Contains("."))
                 _hasDecimal = true;

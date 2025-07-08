@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Data;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-//using static System.Runtime.InteropServices.JavaScript.JSType;
-
+using NCalc;
 namespace MauiApp2
 {
     public partial class MainPage : ContentPage
@@ -20,7 +17,7 @@ namespace MauiApp2
 
         private void OnNumberClicked(object sender, EventArgs e)
         {
-            if (_currentExpression == "")
+            if(_currentExpression == "")
                 ExpressionLabel.Text = "";
 
             var button = (Button)sender;
@@ -39,7 +36,7 @@ namespace MauiApp2
                 else
                     DisplayLabel.Text += number;
             }
-
+            
             _currentValue = double.Parse(DisplayLabel.Text);
         }
 
@@ -68,20 +65,17 @@ namespace MauiApp2
         {
             var button = (Button)sender;
             var op = button.Text;
-            if (!_isNewNumber)
+            
+            if (!_isNewNumber || string.IsNullOrEmpty(_currentExpression))
             {
-                _currentExpression += $" {_currentValue}";
-            }
-            if (string.IsNullOrEmpty(_currentExpression))
-            {
-                _currentExpression = $" {_currentValue}";
-            }
+                _currentExpression += $" {_currentValue}";                
+            } 
+
             if (!char.IsDigit(_currentExpression.Last()))
                 _currentExpression = _currentExpression.Substring(0, _currentExpression.Length - 2);
             _currentExpression += $" {op}";
 
-            /**/
-            ExpressionLabel.Text = _currentExpression;
+            /**/ExpressionLabel.Text = _currentExpression;
 
             _isNewNumber = true;
             _hasDecimal = false;
@@ -94,11 +88,10 @@ namespace MauiApp2
         {
             if (!string.IsNullOrEmpty(_currentExpression))
             {
-                _currentExpression += $" {_currentValue}";
-                /**/
-                ExpressionLabel.Text = _currentExpression + " = ";
+                _currentExpression += $" {_currentValue}";                
+                /**/ExpressionLabel.Text = _currentExpression + " = ";
                 PerformCalculation();
-
+                
                 _currentExpression = "";
                 _isNewNumber = true;
             }
@@ -142,21 +135,15 @@ namespace MauiApp2
 
             try
             {
-                // Use DataTable.Compute for proper order of operations
-                var table = new DataTable();
-                _currentExpression = Regex.Replace(
-                                    _currentExpression,
-                                    @"\d+(\.\d+)?",
-                                    m =>
-                                    {
-                                        var x = m.ToString();
-                                        return x.Contains(".") ? x : string.Format("{0}.0", x);
-                                    }
-                                );
-                var result = table.Compute(_currentExpression, null);
+                // Create a new Expression object
+                var expr = new Expression(_currentExpression);
+                // NCalc correctly interprets numbers to avoid overflow and integer division issues.
+                var result = expr.Evaluate();
+                // The result will be of the correct type (e.g., double, long, int)
                 _currentValue = Convert.ToDouble(result);
+
                 DisplayLabel.Text = FormatNumber(_currentValue);
-                if (DisplayLabel.Text.Contains("."))
+                if(DisplayLabel.Text.Contains("."))
                     _hasDecimal = true;
                 else
                     _hasDecimal = false;
