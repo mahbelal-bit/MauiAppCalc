@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 //using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MauiApp2
@@ -19,7 +20,7 @@ namespace MauiApp2
 
         private void OnNumberClicked(object sender, EventArgs e)
         {
-            if(_currentExpression == "")
+            if (_currentExpression == "")
                 ExpressionLabel.Text = "";
 
             var button = (Button)sender;
@@ -38,7 +39,7 @@ namespace MauiApp2
                 else
                     DisplayLabel.Text += number;
             }
-            
+
             _currentValue = double.Parse(DisplayLabel.Text);
         }
 
@@ -70,7 +71,7 @@ namespace MauiApp2
             if (!_isNewNumber)
             {
                 _currentExpression += $" {_currentValue}";
-            }            
+            }
             if (string.IsNullOrEmpty(_currentExpression))
             {
                 _currentExpression = $" {_currentValue}";
@@ -79,7 +80,8 @@ namespace MauiApp2
                 _currentExpression = _currentExpression.Substring(0, _currentExpression.Length - 2);
             _currentExpression += $" {op}";
 
-            /**/ExpressionLabel.Text = _currentExpression;
+            /**/
+            ExpressionLabel.Text = _currentExpression;
 
             _isNewNumber = true;
             _hasDecimal = false;
@@ -93,9 +95,10 @@ namespace MauiApp2
             if (!string.IsNullOrEmpty(_currentExpression))
             {
                 _currentExpression += $" {_currentValue}";
-                /**/ExpressionLabel.Text = _currentExpression + " = ";
+                /**/
+                ExpressionLabel.Text = _currentExpression + " = ";
                 PerformCalculation();
-                
+
                 _currentExpression = "";
                 _isNewNumber = true;
             }
@@ -137,18 +140,23 @@ namespace MauiApp2
         {
             _currentExpression = _currentExpression.Trim().Replace("×", "*").Replace("÷", "/");
 
-            // Use DataTable.Compute for proper order of operations
-            var table = new DataTable();
-            //_currentExpression = _currentExpression.Contains(".") 
-            //    ? _currentExpression 
-            //    : _currentExpression + ".0"; // Ensure expression ends with a decimal for proper evaluation
             try
             {
-                _currentExpression = "0.0 + " + _currentExpression;
+                // Use DataTable.Compute for proper order of operations
+                var table = new DataTable();
+                _currentExpression = Regex.Replace(
+                                    _currentExpression,
+                                    @"\d+(\.\d+)?",
+                                    m =>
+                                    {
+                                        var x = m.ToString();
+                                        return x.Contains(".") ? x : string.Format("{0}.0", x);
+                                    }
+                                );
                 var result = table.Compute(_currentExpression, null);
                 _currentValue = Convert.ToDouble(result);
                 DisplayLabel.Text = FormatNumber(_currentValue);
-                if(DisplayLabel.Text.Contains("."))
+                if (DisplayLabel.Text.Contains("."))
                     _hasDecimal = true;
                 else
                     _hasDecimal = false;
@@ -163,10 +171,10 @@ namespace MauiApp2
                     OnClearClicked(null, null);
                 });
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 DisplayLabel.Text = "Error";
-                ExpressionLabel.Text = "Invalid operation";
+                ExpressionLabel.Text = $"{e.Message}";
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
                     await Task.Delay(1500);

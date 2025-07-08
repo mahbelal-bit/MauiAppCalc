@@ -1,6 +1,7 @@
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace MauiApp2;
 
@@ -367,15 +368,20 @@ public partial class Calculator3 : ContentPage
     private void PerformCalculation()
     {
         _currentExpression = _currentExpression.Trim().Replace("×", "*").Replace("÷", "/");
-
-        // Use DataTable.Compute for proper order of operations
-        var table = new DataTable();
-        //_currentExpression = _currentExpression.Contains(".")
-        //    ? _currentExpression
-        //    : _currentExpression + ".0"; // Ensure expression ends with a decimal for proper evaluation
+        
         try
         {
-            _currentExpression = "0.0 + " + _currentExpression;
+            // Use DataTable.Compute for proper order of operations
+            var table = new DataTable();
+            _currentExpression = Regex.Replace(
+                                _currentExpression,
+                                @"\d+(\.\d+)?",
+                                m =>
+                                {
+                                    var x = m.ToString();
+                                    return x.Contains(".") ? x : string.Format("{0}.0", x);
+                                }
+                            );
             var result = table.Compute(_currentExpression, null);
             _currentValue = Convert.ToDouble(result);
             DisplayLabel.Text = FormatNumber(_currentValue);
