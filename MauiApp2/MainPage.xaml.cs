@@ -144,7 +144,7 @@ namespace MauiApp2
             //    : _currentExpression + ".0"; // Ensure expression ends with a decimal for proper evaluation
             try
             {
-                _currentExpression = "0.0" + _currentExpression;
+                _currentExpression = "0.0 + " + _currentExpression;
                 var result = table.Compute(_currentExpression, null);
                 _currentValue = Convert.ToDouble(result);
                 DisplayLabel.Text = FormatNumber(_currentValue);
