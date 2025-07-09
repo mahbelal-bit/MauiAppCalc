@@ -136,7 +136,7 @@ namespace MauiApp2
             try
             {
                 // Create a new Expression object
-                var expr = new Expression(_currentExpression);
+                var expr = new Expression("1.0*" + _currentExpression);
                 // NCalc correctly interprets numbers to avoid overflow and integer division issues.
                 var result = expr.Evaluate();
                 // The result will be of the correct type (e.g., double, long, int)
